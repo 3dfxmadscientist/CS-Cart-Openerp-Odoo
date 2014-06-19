@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+            <record id="product_cscart_form_view" model="ir.ui.view">
+                <field name="name">product.cscart.form.inherit</field>
+                <field name="model">product.product</field>
+                <field name="type">form</field>
+                <field name="inherit_id" ref="product.product_normal_form_view"/>
+                <field name="arch" type="xml">
+                    <notebook position="inside">
+                        <page string="Cscart Details">
+                            <group>
+                                <field name="product_code"/>
+                                <field name="cs_cart"/>
+                            </group>                        
+                        </page>
+                    </notebook>
+                </field>
+            </record>
+        </data>
+    </openerp>

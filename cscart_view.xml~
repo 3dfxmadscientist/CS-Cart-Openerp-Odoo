@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+        <data>
+	       <!-- cscart Form -->
+          <record id="cscart_instance_form_view" model="ir.ui.view">
+            <field name="name">cscart.instance.form</field>
+	        <field name="type">form</field>
+                <field name="model">cscart.instance</field>
+                <field name="arch" type="xml">
+                    <form string="Cs-Cart Instance" version="7.0">
+                      <sheet>
+                        <group colspan="4" col="4" placeholder="name...">
+                             <h1><field name="name" select="1"/> </h1>
+                        </group>
+                        <group colspan="4" col="4">
+                            <field name="auth_email" help="API Email Address"/>
+                            <field name="auth_password" help="API Authontication Password."/>
+                            <field name="url" help="Web Site URL like: http://cscart.snippetbucket.com/"/>
+<!--                            <field name="last_cscart_order_import_date"/>-->
+                            <field name="rewrite" help="Mark when web shop have rewrite feature enabled."/>
+                            <field name="since_date" />
+                            <field name="journal_id" widget="selection" help="select journal for payment transaction,if journal defined in payment modes than transaction select from payment method. Payment method does not configured journal than default this will be selected."/>
+                            <field name="ssl" help="Mark when web shop have SSL feature enabled." invisible= "1"/>
+                            <field name="progress_status" readonly="1" nolabel= "1"/>
+                         </group>
+<!--                            <div>-->
+<!--                                <img src="http://www.dnbscene.com/img/loading_small.gif" attrs="{'invisible':[('progress_status','=','completed')]}"/>-->
+<!--                                <img src="http://files.softicons.com/download/web-icons/vector-stylish-weather-icons-by-bartosz-kaszubowski/png/128x128/sun.rays.small.png" attrs="{'invisible':[('progress_status','=','start')]}"/></div>-->
+                            <div> 
+                            <button name="import_payment_method" 
+                                    string="1.Import Payment Method"
+                                    colspan="2" type="object"/>
+                            <button icon="terp-personal+" 
+                                    name="import_supplier" 
+                                    string="2.Import Suppliers" 
+                                    colspan="2" 
+                                    type="object" 
+                                    help="Import Suppliers from CsCart."/>
+                            <button icon="terp-personal+" 
+                                    name="import_customer" 
+                                    string="3.Import Users" 
+                                    colspan="2" 
+                                    type="object" 
+                                    help="Import Users from CsCart."/>
+                            <button icon="gtk-indent" 
+                                    name="import_category" 
+                                    string="4.Import Categories" colspan="2" type="object" 
+                                    help="Import Categories from Cs-Cart"/>
+                            <button icon="terp-stock_symbol-selection" 
+                                    name="import_product" 
+                                    string="5.Import Product" colspan="2" type="object" 
+                                    help="Import products from Cs-Cart, also syn. suppliers with product."/>
+                            <button  icon="gtk-sort-descending" 
+                                    name="import_orders_cscart" 
+                                    string="6.Import Orders" colspan="2" type="object" 
+                                    help="Import Cs-Cart Orders. If Cs-Cart Order is completed in cscart then import order and mark done sale order and its invoice, if order is in processed, then import order and mark done invoice and create drop shipment order, for rest import Cs-Cart order as Sale Order Quotation."/>
+                            <button icon="gtk-sort-ascending" 
+                                    name="export_orders" 
+                                    string="7.Export Orders" colspan="2" type="object" 
+                                    help="Export Order Status to Cs-Cart, as order status change it export status to cscart."/>
+                            <button icon="gtk-preferences" 
+                                    name="export_product" 
+                                    string="8.Export Products" colspan="2" type="object" 
+                                    help="Export Product to Cs-Cart, Updates product name, price, stock, description..."/>
+                            <button name="light_import_products" 
+                                    string="9.Light Import Products" colspan="2" type="object" 
+                                    help="Import  light products from Cs-Cart." invisible= "1"/>
+                          </div>
+                       </sheet>
+                    </form>
+                </field>
+            </record>
+        
+    <record model="ir.ui.view" id="view_patient_info_tree">
+        	<field name="name">cscart.instance.tree</field>
+        <field name="model">cscart.instance</field>
+       	<field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree string="cscart Instance">
+		            <field name="name"/>
+                    <field name="url"/>
+                    <field name="rewrite"/>
+            </tree>
+        </field>
+    </record>
+
+<!-- cscart Instance Form,Tree Menu Action  -->
+    <record model="ir.actions.act_window" id="action_cscart_instance">
+        <field name="name">Connection Instances</field>
+        <field name="res_model">cscart.instance</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+        <field name="view_id" ref="view_patient_info_tree"/>
+    </record>
+
+    <record model="ir.actions.act_window" id="action_cscart_products">
+        <field name="name">Cscart Products</field>
+        <field name="res_model">product.product</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="view_id" ref=""/>
+    </record>
+
+    <record model="ir.ui.view" id="cscart_form_view_purchase_order">
+    <field name="name">purchase.order.inherited.form.cscart</field>
+    <field name="model">purchase.order</field>
+    <field name="inherit_id" ref="purchase.purchase_order_form"/>
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//field[@name='dest_address_id']" position="replace"/>
+            <xpath expr="//field[@name='location_id']" position="replace"/>
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="dest_address_id" on_change="onchange_dest_address_id(dest_address_id)"/>
+            </xpath>
+            <xpath expr="//field[@name='warehouse_id']" position="after">
+                <field name="location_id"/>
+            </xpath>
+            <xpath expr="//field[@name='origin']" position="attributes">
+                <attribute name="string">CsCart Number</attribute>
+            </xpath>
+            <xpath expr="//button[@name='wkf_send_rfq']" position="attributes">
+                 <attribute name="states">confirm</attribute>
+            </xpath>
+            <xpath expr="//field[@name='dest_address_id']" position="after">
+                <field name="direct_address_note" colspan="2" nolabel="1" placeholder="Delivery Address Note..."
+                       attrs="{'invisible': [('drop_ship', '=', False)]}"/>
+            </xpath>
+        </data>
+    </field>
+    </record>
+
+<record model="ir.ui.view" id="cscart_tree_view_purchase_order">
+    <field name="name">purchase.order.inherited.tree.cscart</field>
+    <field name="model">purchase.order</field>
+    <field name="inherit_id" ref="purchase.purchase_order_tree"/>
+    <field name="arch" type="xml">
+        <data>
+             <xpath expr="//field[@name='origin']" position="attributes">
+                <attribute name="string">CsCart Number</attribute>
+            </xpath>
+        </data>
+    </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_form_sale_order_cscart">
+    <field name="name">sale.order.form.vessel</field>
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="sale.view_order_form"/>
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//page[@string='Order Lines']" position="after">
+                <page string="CsCart" sequence="100">
+                <group col="4">
+                   <field name="purchase_order_id"/>
+                   <field name="cscart_instance_id"/>
+                   <field name="cscart_order_id"/>
+                </group>
+                </page>
+            </xpath>
+             <xpath expr="//field[@name='client_order_ref']" position="after">
+                <field name="payment_method_id"/>
+            </xpath>
+
+        </data>
+    </field>
+    </record>
+    <record model="ir.ui.view" id="cscart_sales_order_tree_view">
+    <field name="name">sale.order.tree.cscart</field>
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="sale.view_order_tree"/>
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//field[@name='state']" position="after">
+                <field name="payment_method_id" />
+            </xpath>
+        </data>
+    </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_form_sale_order_vender_rfq">
+        <field name="name">sale.order.form.vessel</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sb_drop_ship.view_form_sale_order_vessel"/>
+        <field name="arch" type="xml">
+            <data>
+                <xpath expr="//page[@string='Vendors RFQ']/button[@string='Create Vendors RFQ']" position="attributes">
+                        <attribute name="invisible" >1</attribute>
+                </xpath>
+                <xpath expr="//page[@string='Vendors RFQ']" position="attributes">
+                    <attribute name="string">Purchase Order</attribute>
+                </xpath>
+                <xpath expr="//button[@string='Send RFQ Emails']" position="attributes">
+                    <attribute name="invisible" >1</attribute>
+                </xpath>
+            </data>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="cscart_view_form_stock_picking">
+        <field name="name">stock.picking.form</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+        <data>
+            <xpath expr="//page[@string='Products']" position="after">
+                <page string="Shipment Details">
+                    <group colspan="4" col="4">
+                        <field name="shipping_method"/>
+                        <field name="tracking_number"/>
+                        <field name="carrier"/>
+                        <field name="order_status"/>
+                        <field name="notification"/>
+                        <field name="sent"/>
+                    </group>
+                    <field name="comment" placeholder="comment..."/>
+                </page>
+            </xpath>
+            <xpath expr="//header/button[@name='draft_force_assign']" position="after">
+                <button name="new_shipment" string="Send New Shipment" type="object" attrs="{'invisible': [('sent', '=', True)]}"/>
+            </xpath>
+        </data>
+    </field>
+    </record>
+
+<!--stock.view_picking_out_form-->
+
+
+
+    <record model="ir.ui.view" id="cscart_view_form_stock_picking_out">
+        <field name="name">stock.picking.out.form</field>
+        <field name="model">stock.picking.out</field>
+        <field name="inherit_id" ref="stock.view_picking_out_form"/>
+        <field name="arch" type="xml">
+        <data>
+            <xpath expr="//page[@string='Products']" position="after">
+                <page string="Shipment Details">
+                    <group colspan="4" col="4">
+                        <field name="shipping_method"/>
+                        <field name="tracking_number"/>
+                        <field name="carrier"/>
+                        <field name="order_status"/>
+                        <field name="notification"/>
+                        <field name="sent"/>
+                        <field name="sale_id"/>
+                    </group>
+                    <field name="comment" placeholder="comment..."/>
+                </page>
+            </xpath>
+            <xpath expr="//header/button[@name='draft_force_assign']" position="after">
+                <button name="new_shipment" string="Send New Shipment" type="object" attrs="{'invisible': [('sent', '=', True)]}"/>
+            </xpath>
+        </data>
+    </field>
+    </record>
+
+
+
+
+    <record model="ir.ui.view" id="cscart_account_invoice_form">
+    <field name="name">account.invoice.inherited.form.cscart</field>
+    <field name="model">account.invoice</field>
+    <field name="inherit_id" ref="account.invoice_form"/>
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//field[@name='origin']" position="attributes">
+                <attribute name="string">CsCart Number</attribute>
+            </xpath>
+        </data>
+    </field>
+    </record>
+
+
+    <record model="ir.ui.view" id="cscart_account_invoice_tree">
+    <field name="name">account.invoice.inherited.tree.cscart</field>
+    <field name="model">account.invoice</field>
+    <field name="inherit_id" ref="account.invoice_tree"/>
+    <field name="arch" type="xml">
+        <data>
+            <xpath expr="//field[@name='origin']" position="attributes">
+                <attribute name="string">CsCart Number</attribute>
+            </xpath>
+        </data>
+    </field>
+    </record>
+
+
+
+
+    <record model="ir.ui.view" id="cscart_view_form_payment_method">
+        <field name="name">cscart.payment.method.form</field>
+        <field name="model">cscart.payment.method</field>
+            <field name="arch" type="xml">
+                <form string="Payment Method" version="7.0">
+                    <sheet>
+                        <group colspan="4" col="4">
+                            <field name="name"/>
+                            <field name="processor"/>
+                            <field name="payment_category"/>
+                            <field name="description"/>
+                            <field name="a_surcharge"/>
+                            <field name="p_surcharge"/>
+                            <field name="payment_id"/>
+                            <field name="journal_id"/>
+<!--                            <separator string="User Groups" colspan="4"/>-->
+<!--                            <group colspan="8" col="8">-->
+<!--                                <field name="user_groups_all"/>-->
+<!--                                <field name="user_groups_guest"/>-->
+<!--                                <field name="user_groups_registered"/>-->
+<!--                            </group>-->
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+    </record>
+
+    <record model="ir.ui.view" id="cscart_view_tree_payment_method">
+        	<field name="name">cscart.payment.method.tree</field>
+        <field name="model">cscart.payment.method</field>
+       	<field name="type">tree</field>
+        <field name="arch" type="xml">
+            <tree string="Payment Method">
+		            <field name="name"/>
+                    <field name="journal_id"/>
+            </tree>
+        </field>
+    </record>
+
+
+
+    <record model="ir.ui.view" id="cscart_res_company_form">
+    <field name="name">res.company.form</field>
+    <field name="model">res.company</field>
+    <field name="inherit_id" ref="base.view_company_form"/>
+    <field name="arch" type="xml">
+        <data>
+             <xpath expr="//field[@name='currency_id']" position="after">
+                <field name="cscart_supplier"/>
+            </xpath>
+        </data>
+    </field>
+    </record>
+
+    <record model="email.template" id="purchase.email_template_edi_purchase">
+        <field name="body_html"><![CDATA[
+<div style="font-family: 'Lucica Grande', Ubuntu, Arial, Verdana, sans-serif; font-size: 12px; color: rgb(34, 34, 34); background-color: #FFF; ">
+
+    <p>Hello ${object.partner_id.name},</p>
+    
+    <p>Here is a ${object.state in ('draft', 'sent') and 'request for quotation' or 'purchase order confirmation'} from ${object.company_id.name}: </p>
+    
+    <p style="border-left: 1px solid #8e0000; margin-left: 30px;">
+       &nbsp;&nbsp;<strong>REFERENCES</strong><br />
+       &nbsp;&nbsp;Order number: <strong>${object.name}</strong><br />
+       &nbsp;&nbsp;Order total: <strong>${object.amount_total} ${object.pricelist_id.currency_id.name}</strong><br />
+       &nbsp;&nbsp;Order date: ${object.date_order}<br />
+       % if object.origin:
+       &nbsp;&nbsp;Order reference: ${object.origin}<br />
+       % endif
+       % if object.direct_address_note:
+       &nbsp;&nbsp;Delivery Address: ${object.direct_address_note}<br />
+       % endif
+       % if object.partner_ref:
+       &nbsp;&nbsp;Your reference: ${object.partner_ref}<br />
+       % endif
+       % if object.validator:
+       &nbsp;&nbsp;Your contact: <a href="mailto:${object.validator.email or ''}?subject=Order%20${object.name}">${object.validator.name}</a>
+       % endif
+    </p>
+
+    <br/>
+    <p>If you have any question, do not hesitate to contact us.</p>
+    <p>Thank you!</p>
+    <br/>
+    <br/>
+    <div style="width: 375px; margin: 0px; padding: 0px; background-color: #8E0000; border-top-left-radius: 5px 5px; border-top-right-radius: 5px 5px; background-repeat: repeat no-repeat;">
+        <h3 style="margin: 0px; padding: 2px 14px; font-size: 12px; color: #DDD;">
+            <strong style="text-transform:uppercase;">${object.company_id.name}</strong></h3>
+    </div>
+    <div style="width: 347px; margin: 0px; padding: 5px 14px; line-height: 16px; background-color: #F2F2F2;">
+        <span style="color: #222; margin-bottom: 5px; display: block; ">
+        % if object.company_id.street:
+            ${object.company_id.street}<br/>
+        % endif
+        % if object.company_id.street2:
+            ${object.company_id.street2}<br/>
+        % endif
+        % if object.company_id.city or object.company_id.zip:
+            ${object.company_id.zip} ${object.company_id.city}<br/>
+        % endif
+        % if object.company_id.country_id:
+            ${object.company_id.state_id and ('%s, ' % object.company_id.state_id.name) or ''} ${object.company_id.country_id.name or ''}<br/>
+        % endif
+        </span>
+        % if object.company_id.phone:
+            <div style="margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: 0px; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; ">
+                Phone:&nbsp; ${object.company_id.phone}
+            </div>
+        % endif
+        % if object.company_id.website:
+            <div>
+                Web :&nbsp;<a href="${object.company_id.website}">${object.company_id.website}</a>
+            </div>
+        %endif
+        <p></p>
+    </div>
+</div>
+            ]]></field>
+    </record>
+    
+    <record id="purchase.report_purchase_quotation" model="ir.actions.report.xml">
+        <field name="report_file">sb_cscart/request_quotation.rml</field>
+    </record>
+    
+    </data>
+</openerp>

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <menuitem id="menu_cscart" name="CsCart" icon="terp-sale" web_icon="images/cs-cart-logo.png" web_icon_hover="images/cs-cart-logo.png"/>
+        <menuitem id="menu_cscart_settings" name="Instances"  parent="menu_cscart"  sequence="4"/>
+        <menuitem id="menu_cscart_core" name="People" parent="menu_cscart" sequence="20"/>
+        <menuitem id="menu_cscart_sale_orders" name="Sale Orders" parent="menu_cscart" sequence="30"/>
+        <menuitem id="menu_cscart_purchase_orders" name="Purchase Orders" parent="menu_cscart" sequence="40"/>
+        <menuitem id="menu_cscart_products" name="Products" parent="menu_cscart" sequence="40"/>
+
+        <record id="res_users_action" model="ir.actions.act_window">
+                <field name="name">Users</field>
+                <field name="type">ir.actions.act_window</field>
+                <field name="res_model">res.users</field>
+                <field name="view_type">form</field>
+                <field name="view_mode">tree,form</field>
+                <field name="domain">[('cscart_id','!=',False)]</field>
+                <field name="help" type="html">
+                  <p class="oe_view_nocontent_create">
+                    Click to add New.
+                  </p><p>
+                    
+                  </p>
+                </field>
+        </record>
+                
+        <menuitem id="res_users_menuitem" name="Users" parent="menu_cscart_core" action="res_users_action" sequence="5"/>
+
+        <record id="res_customer_action" model="ir.actions.act_window">
+                <field name="name">Customers</field>
+                <field name="type">ir.actions.act_window</field>
+                <field name="res_model">res.partner</field>
+                <field name="view_type">form</field>
+                <field name="view_mode">tree,form</field>
+                <field name="domain">[('cscart_id','!=',False),('customer','=', True)]</field>
+                <field name="help" type="html">
+                  <p class="oe_view_nocontent_create">
+                    Click to add New.
+                  </p><p>
+                    
+                  </p>
+                </field>
+        </record>
+                
+        <menuitem id="res_partner_menuitem" name="Customers" parent="menu_cscart_core" action="res_customer_action" sequence="2"/>
+
+        <record id="supplier_action" model="ir.actions.act_window">
+                <field name="name">Suppliers</field>
+                <field name="type">ir.actions.act_window</field>
+                <field name="res_model">res.partner</field>
+                <field name="view_type">form</field>
+                <field name="view_mode">kanban,tree,form</field>
+                <field name="domain">[('supplier','=',True),('customer','=',False)]</field>
+                <field name="help" type="html">
+                  <p class="oe_view_nocontent_create">
+                    Click to add New.
+                  </p>
+                </field>
+        </record>
+                
+        <menuitem id="supplier_menuitem" name="Suppliers" parent="menu_cscart_core" action="supplier_action" sequence="4"/>
+
+
+        <record id="product_category_action" model="ir.actions.act_window">
+                <field name="name">Product categories</field>
+                <field name="type">ir.actions.act_window</field>
+                <field name="res_model">product.category</field>
+                <field name="view_type">form</field>
+                <field name="view_mode">tree,form</field>
+                <field name="help" type="html">
+                  <p class="oe_view_nocontent_create">
+                    Click to add New.
+                  </p><p>
+                    
+                  </p>
+                </field>
+        </record>
+
+        <menuitem id="product_category_menuitem" name="Product Categories" parent="menu_cscart_products" action="product_category_action" sequence="9"/>
+
+            <record id="sale_order_action" model="ir.actions.act_window">
+                    <field name="name">Orders</field>
+                    <field name="type">ir.actions.act_window</field>
+                    <field name="res_model">sale.order</field>
+                    <field name="view_type">form</field>
+                    <field name="view_mode">tree,form</field>
+                    <field name="help" type="html">
+                      <p class="oe_view_nocontent_create">
+                        Click to add New.
+                      </p><p>
+                        
+                      </p>
+                    </field>
+            </record>
+
+        <menuitem id="sale_order_menuitem" name="Orders" parent="menu_cscart_sale_orders" action="sale_order_action" sequence="5"/>
+
+
+            <record id="sale_order_payment_action" model="ir.actions.act_window">
+                    <field name="name">Payments</field>
+                    <field name="type">ir.actions.act_window</field>
+                    <field name="res_model">cscart.payment.method</field>
+                    <field name="view_type">form</field>
+                    <field name="view_mode">tree,form</field>
+                    <field name="help" type="html">
+                      <p class="oe_view_nocontent_create">
+                        Click to add New.
+                      </p><p>
+                        
+                      </p>
+                    </field>
+            </record>
+
+        <menuitem id="sale_order_payment_menuitem" name="Payments" parent="menu_cscart_sale_orders" action="sale_order_payment_action" sequence="5"/>
+
+
+        <record id="product_product_action" model="ir.actions.act_window">
+                <field name="name">product.product</field>
+                <field name="type">ir.actions.act_window</field>
+                <field name="res_model">product.product</field>
+                <field name="view_type">form</field>
+                <field name="view_mode">tree,form</field>
+                <field name="help" type="html">
+                  <p class="oe_view_nocontent_create">
+                    Click to add New.
+                  </p><p>
+                    
+                  </p>
+                </field>
+        </record>
+        
+<!--        <menuitem id="product_product_menuitem" name="Products" parent="menu_cscart_core" action="product_product_action" sequence="7"/>-->
+       <menuitem id="product_product_menuitem" name="Products" parent="menu_cscart_products" action="action_cscart_products" sequence="7"/>
+        
+
+        <menuitem id="menu_cscart_core_instances" name="Web Stores" parent="menu_cscart_settings" action="action_cscart_instance" />
+<!--        <menuitem id="menu_cscart_customers" name="CsCart Customers" parent="menu_cscart_core" action="action_cscart_instance"/>-->
+    </data>
+</openerp>
